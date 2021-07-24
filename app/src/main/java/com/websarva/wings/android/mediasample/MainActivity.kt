@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.CompoundButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class MainActivity : AppCompatActivity() {
     private var _player: MediaPlayer? = null
@@ -22,6 +24,8 @@ class MainActivity : AppCompatActivity() {
             it.setOnCompletionListener(PlayerCompletionListener())
             it.prepareAsync()
         }
+        val loopSwitch = findViewById<SwitchMaterial>(R.id.swLoop)
+        loopSwitch.setOnCheckedChangeListener(LoopSwitchChangedListener())
     }
 
     private inner class PlayerPreparedListener : MediaPlayer.OnPreparedListener{
@@ -34,6 +38,7 @@ class MainActivity : AppCompatActivity() {
             btForward.isEnabled = true
         }
     }
+
 
     fun onBackButtonClick(view: View){
         _player?.seekTo(0)
@@ -48,11 +53,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private inner class LoopSwitchChangedListener:CompoundButton.OnCheckedChangeListener{
+        override fun onCheckedChanged(buttonView:CompoundButton,isChecked:Boolean){
+            _player?.isLooping = isChecked
+        }
+    }
+
 
     private inner class PlayerCompletionListener : MediaPlayer.OnCompletionListener{
         override fun onCompletion(mp: MediaPlayer?) {
-            val btPlay = findViewById<Button>(R.id.btPlay)
-            btPlay.setText(R.string.bt_play_play)
+            _player?.let {
+                if (!it.isLooping) {
+                    val btPlay = findViewById<Button>(R.id.btPlay)
+                    btPlay.setText(R.string.bt_play_play)
+                }
+            }
         }
     }
 
